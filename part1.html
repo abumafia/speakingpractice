@@ -48,6 +48,10 @@
         <p id="question">Press start to get a question</p>
         <p id="timer"></p>
         <button id="start-btn">Start</button>
+        <button onclick="startRecording()">🎤 Yozib olish</button>
+<button onclick="stopRecording()">⏹ Tugatish</button>
+<audio id="audioPlayback" controls style="display:none;"></audio>
+
         <p id="transcript"></p>
         <p id="score"></p>
     </div>
@@ -192,6 +196,39 @@
                 }
             }, 1000);
         }
+        let mediaRecorder;
+let audioChunks = [];
+
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                let audioUrl = URL.createObjectURL(audioBlob);
+                let audioElement = document.getElementById('audioPlayback');
+                audioElement.src = audioUrl;
+                audioElement.style.display = 'block';
+                audioChunks = [];
+            };
+        })
+        .catch(error => {
+            console.error("Mikrofondan foydalanish imkoni yo'q:", error);
+        });
+}
+
+function stopRecording() {
+    if (mediaRecorder) {
+        mediaRecorder.stop();
+    }
+}
+
 
         document.getElementById('start-btn').addEventListener('click', function () {
             selectedQuestions = questions.sort(() => 0.5 - Math.random()).slice(0, 3);
