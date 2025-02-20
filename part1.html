@@ -102,6 +102,28 @@
             
             recognition.start();
         }
+        function startSpeechRecognition() {
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = event => {
+        let transcript = "";
+        for (let i = 0; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript + " ";
+        }
+        document.getElementById('transcript').innerText = transcript;
+    };
+
+    recognition.onerror = function(event) {
+        console.error("Speech recognition error:", event.error);
+    };
+
+    recognition.start();
+}
+
 
         function showQuestion(questionObj) {
             document.getElementById('question').innerText = questionObj.text;
